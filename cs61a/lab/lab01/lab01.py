@@ -10,7 +10,16 @@ def falling(n, k):
     >>> falling(4, 0)
     1
     """
-    "*** YOUR CODE HERE ***"
+    counter = 1
+    falfac = n
+    if k == 0:
+        return 1
+    else:
+        while counter < k: 
+            falfac = falfac * (n - counter)  
+            counter += 1
+        return falfac 
+
 
 
 def divisible_by_k(n, k):
@@ -33,7 +42,14 @@ def divisible_by_k(n, k):
     >>> c
     0
     """
-    "*** YOUR CODE HERE ***"
+    if n < k:
+        return 0
+    else:
+        while n >= k:
+            if n % k == 0:
+                print(n)
+            n -=1
+
 
 
 def sum_digits(y):
