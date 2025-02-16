@@ -1,5 +1,10 @@
-negative = -12
-while negative: # If this loops forever, just type Infinite Loop
-    if negative + 6:
-        print(negative)
-    negative += 3
+def bake(cake, make):
+    if cake == 0:
+        cake = cake + 1
+        print(cake)
+    
+    if cake == 1:
+        print(make)
+    
+    return cake  
+bake(0, 29)
