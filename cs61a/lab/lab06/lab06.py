@@ -6,7 +6,10 @@ class Transaction:
 
     def changed(self):
         """Return whether the transaction resulted in a changed balance."""
-        "*** YOUR CODE HERE ***"
+        if self.after == self.before:
+            return False
+        else:
+            return True
 
     def report(self):
         """Return a string describing the transaction.
@@ -20,8 +23,12 @@ class Transaction:
         """
         msg = 'no change'
         if self.changed():
-            "*** YOUR CODE HERE ***"
-        return str(self.id) + ': ' + msg
+            if self.before > self.after:
+                return f'{self.id}: decreased {self.before}->{self.after}'
+            else:
+                return f'{self.id}: increased {self.before}->{self.after}'
+        else:
+            return f'{self.id}' + ': ' + msg
 
 class Account:
     """A bank account that tracks its transaction history.
@@ -67,21 +74,37 @@ class Account:
     def __init__(self, account_holder):
         self.balance = 0
         self.holder = account_holder
+        self.transactions = []
+        self.transaction_id = 0 
 
     def deposit(self, amount):
         """Increase the account balance by amount, add the deposit
         to the transaction history, and return the new balance.
         """
+        before = self.balance
         self.balance = self.balance + amount
+        after = self.balance
+        transaction = Transaction(self.transaction_id, before, after)
+        self.transactions.append(transaction)
+        self.transaction_id += 1
         return self.balance
 
     def withdraw(self, amount):
         """Decrease the account balance by amount, add the withdraw
         to the transaction history, and return the new balance.
         """
+        before = self.balance
         if amount > self.balance:
+            after = self.balance
+            transaction = Transaction(self.transaction_id, before, after)
+            self.transactions.append(transaction)
+            self.transaction_id += 1
             return 'Insufficient funds'
         self.balance = self.balance - amount
+        after = self.balance
+        transaction = Transaction(self.transaction_id, before, after)
+        self.transactions.append(transaction)
+        self.transaction_id += 1
         return self.balance
 
 
@@ -108,11 +131,11 @@ class Server:
 
     def send(self, email):
         """Append the email to the inbox of the client it is addressed to."""
-        ____.inbox.append(email)
+        self.clients[email.recipient_name].inbox.append(email)
 
     def register_client(self, client):
         """Add a client to the dictionary of clients."""
-        ____[____] = ____
+        self.clients[client.name] = client
 
 class Client:
     """A client has a server, a name (str), and an inbox (list).
@@ -135,11 +158,11 @@ class Client:
         self.inbox = []
         self.server = server
         self.name = name
-        server.register_client(____)
+        server.register_client(self)
 
     def compose(self, message, recipient_name):
         """Send an email with the given message to the recipient."""
-        email = Email(message, ____, ____)
+        email = Email(message, self, recipient_name)
         self.server.send(email)
 
 
@@ -176,7 +199,16 @@ def make_change(amount, coins):
     rest = remove_one(coins, smallest)
     if amount < smallest:
         return None
-    "*** YOUR CODE HERE ***"
+    if amount == smallest:
+        return [smallest]
+    
+    remaining = amount - smallest
+    sub_result = make_change(remaining, rest)
+    if sub_result is not None:
+        return [smallest] +sub_result
+    remaining_coins = {k: v for k, v in coins.items() if k != smallest}
+    return make_change(amount, remaining_coins)
+
 
 def remove_one(coins, coin):
     """Remove one coin from a dictionary of coins. Return a new dictionary,
@@ -271,5 +303,21 @@ class ChangeMachine:
 
     def change(self, coin):
         """Return change for coin, removing the result from self.coins."""
-        "*** YOUR CODE HERE ***"
+        if coin in self.coins and self.coins[coin] > 0:
+            self.coins[coin] -= 1
+            if self.coins[coin] == 0:
+                del self.coins[coin]
+            result = [coin]
+        else:    
+            result = make_change(coin, self.coins)
+            if result is None:
+                return [coin]
+            else:   
+                for c in result:
+                    self.coins[c] -= 1
+                    if self.coins[c] == 0:
+                        del self.coins[c]
+        self.coins[coin] = self.coins.get(coin, 0) + 1       
+        return result
+        
 
